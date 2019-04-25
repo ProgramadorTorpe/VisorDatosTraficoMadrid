@@ -1547,19 +1547,19 @@ No gestionamos que los datos introducidos generen una fecha válida
 
 def medicionesTeoricas(anio_inicial, mes_inicial, dia_inicial, hora_inicial, anio_final, mes_final, dia_final, hora_final):
 	momentoInicial=datetime(anio_inicial, mes_inicial, dia_inicial, hora_inicial)
-    momentoFinal=datetime(anio_final, mes_final, dia_final, hora_final)
+	momentoFinal=datetime(anio_final, mes_final, dia_final, hora_final)
 
-    diff = momentoFinal-momentoInicial
+	diff = momentoFinal-momentoInicial
 
-    days = diff.days
-    seconds = diff.seconds 
-    hours = days * 24 + seconds // 3600
-    medicionesTeoricas=(hours+1)*4 #Le sumamos 1 porque la medición incluye la hora final y la diferencia entre horas no.
+	days = diff.days
+	seconds = diff.seconds 
+	hours = days * 24 + seconds // 3600
+	medicionesTeoricas=(hours+1)*4 #Le sumamos 1 porque la medición incluye la hora final y la diferencia entre horas no.
 
 
-    #Si la fecha inicial es posterior a la fecha final el resultado será negativo, en ese caso devolvemos 0
+	#Si la fecha inicial es posterior a la fecha final el resultado será negativo, en ese caso devolvemos 0
 
-    if hours<=0:
-    	return 0
-    else:
-    	return medicionesTeoricas
+	if hours<=0:
+		return 0
+	else:
+		return medicionesTeoricas
