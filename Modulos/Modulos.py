@@ -14,6 +14,8 @@ from io import open
 
 from pathlib import Path
 
+from datetime import datetime
+
 
 
 """
@@ -37,6 +39,7 @@ RESUMEN:
 - get_lines -> número de líneas de un archivo
 - split_csv -> dividir fichero csv
 - ls -> listar archivos de una carpeta
+- Número de mediciones teóricas entre los momentos inicial y final
 
 
 los * son funciones en las que hay que definir excepciones
@@ -548,7 +551,7 @@ def pide_fecha():
 		except ValueError:
 			pass
 
-	while (anio<2013 or anio>2018): #si el anio esta fuera del rango 2013 - 2018 
+	while (anio<2013 or anio>2019): #si el anio esta fuera del rango 2013 - 2018 
 		try:
 			anio=int(input("Introduce el año (2013 - 2018): "))
 		except ValueError:
@@ -653,7 +656,7 @@ def pide_dias():
 		return [2018, 1, 1, 10, 2018, 1, 1, 22]
 			
 
-	while (anio_inicial<2013 or anio_inicial>2018): #si el anio esta fuera del rango 2013 - 2018 
+	while (anio_inicial<2013 or anio_inicial>2019): #si el anio esta fuera del rango 2013 - 2018 
 		try:
 			anio_inicial=int(input("Introduce el año inicial (2013 - 2018): "))
 		except ValueError:
@@ -701,7 +704,7 @@ def pide_dias():
 		hora_final=25
 		pide_dia_final=True
 
-		while (anio_final<2013 or anio_final>2018): #si el anio esta fuera del rango 2013 - 2018 
+		while (anio_final<2013 or anio_final>2019): #si el anio esta fuera del rango 2013 - 2018 
 			try:
 				anio_final=int(input("Introduce el año final (2013 - 2018) - Si no pones nada se asume que es igual al año inicial: "))
 			except ValueError:
@@ -715,7 +718,7 @@ def pide_dias():
 
 		while (pide_dia_final):
 			try:
-				dia_final=int(input("Introduce el dia final (0-23) - Si no pones nada se asume que es igual al día inicial: "))
+				dia_final=int(input("Introduce el dia final - Si no pones nada se asume que es igual al día inicial: "))
 			except ValueError:
 				dia_final=dia_inicial
 
@@ -1312,6 +1315,10 @@ Fila i+2:
 
 def Lista_minutos_a_hoja_de_calculo(medidor, fechas, lista_resultado_minutos, ruta_main):
 
+	#!!!!!!!!!!!!!!Esta función tiene un problema grande, sólo funciona bien si la consulta es de un único día.
+	#Si la consulta es de varios días sobreescribirá las columnas con los datos del último día.
+	#Para solucionarlo, antes de escribir debería buscar la primera celda vacía del libro antes de ponerse a escribir
+
 	ruta_actual=ruta_main
 	#ruta_main + Consultas+"medidor - fecha inicial - hora inicial - fecha final - hora final - minutos"
 	#[anio_inicial, mes_inicial, dia_inicial, hora_inicial, anio_final, mes_final, dia_final, hora_final]
@@ -1330,7 +1337,7 @@ def Lista_minutos_a_hoja_de_calculo(medidor, fechas, lista_resultado_minutos, ru
 
 	libro=Workbook() #inicializar un workbook, que luego podremos guardar como archivo excel
 
-	ws = libro.active #Definir la hora de trabajo como la activa del libro creado
+	ws = libro.active #Definir la hoja de trabajo como la activa del libro creado
 
 	for i in range(len(lista_titulo_columnas)):
 		ws.cell(row=1, column=(i+1), value=lista_titulo_columnas[i]) #asignamos a la primera fila los sucesivos valores contenidos en la lista de títulos de columnas.
@@ -1522,3 +1529,37 @@ def ls(ruta):
 #-------------------------------------------------------------------------------
 
 
+#NÚMERO DE MEDICIONES TEÓRICAS ENTRE LOS MOMENTOS INICIAL Y FINAL:
+
+"""
+Con esta función calcularemos el número de mediciones que, en teoría, debería haber entre los momentos iniciales y finales.
+
+Nos pedirá como argumento anio_inicial, mes_inicial, dia_inicial, hora_inicial, anio_final, mes_final, dia_final, hora_final
+
+Devolverá un entero correspondiente al número de mediciones.
+
+En caso de que la fecha inicial sea posterior a la fecha final devolverá 0
+
+No gestionamos que los datos introducidos generen una fecha válida
+
+
+"""
+
+def medicionesTeoricas(anio_inicial, mes_inicial, dia_inicial, hora_inicial, anio_final, mes_final, dia_final, hora_final):
+	momentoInicial=datetime(anio_inicial, mes_inicial, dia_inicial, hora_inicial)
+    momentoFinal=datetime(anio_final, mes_final, dia_final, hora_final)
+
+    diff = momentoFinal-momentoInicial
+
+    days = diff.days
+    seconds = diff.seconds 
+    hours = days * 24 + seconds // 3600
+    medicionesTeoricas=(hours+1)*4 #Le sumamos 1 porque la medición incluye la hora final y la diferencia entre horas no.
+
+
+    #Si la fecha inicial es posterior a la fecha final el resultado será negativo, en ese caso devolvemos 0
+
+    if hours<=0:
+    	return 0
+    else:
+    	return medicionesTeoricas

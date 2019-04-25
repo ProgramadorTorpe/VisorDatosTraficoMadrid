@@ -45,6 +45,7 @@ import os
 import openpyxl
 from openpyxl import Workbook
 
+
 seguimos=True
 
 while(seguimos):
@@ -124,6 +125,8 @@ while(seguimos):
 
     print("")
 
+    #Obtener datos de medidor y fechas de consulta:
+
     while (medidor3==0): #or not(comprobar_medidor(medidor))): #un comprobar medidor de un medidor valido nos daria true, por eso lo negamos, para que no entre en el bucle si el medidor es correcto, la función está por hacer
       try:
         medidor3=int(input("Introduce un codigo de medidor valido: "))
@@ -136,7 +139,20 @@ while(seguimos):
     lista_fechas3=genera_fechas(fechas3[0],fechas3[1],fechas3[2],fechas3[3],fechas3[4],fechas3[5],fechas3[6],fechas3[7])
     print("")
 
-    #aqui gestionamos cómo va a querer el usuario que se muestren los datos, si en mediciones horarias o cada 15 minutos
+
+    #Obtenemos el número de mediciones teóricas entre los momentos inicial y final (una cada 15 minutos)
+
+    #def medicionesTeoricas(anio_inicial, mes_inicial, dia_inicial, hora_inicial, anio_final, mes_final, dia_final, hora_final)    
+    medicionesTeoricas3=medicionesTeoricas(fechas3[0],fechas3[1], fechas3[2], fechas3[3],fechas3[4],fechas3[5], fechas3[6], fechas3[7]) #Le sumamos 1 porque la medición incluye la hora final y la diferencia entre horas no.
+
+    print("")
+    print("El número de mediciones entre los momentos introducidos es:", medicionesTeoricas3)
+    print("")
+
+
+    #Opciones de visualización de los datos:
+
+    #Vista cada 15 minutos u horaria:
 
     minutos3=True
 
@@ -152,6 +168,22 @@ while(seguimos):
       minutos3=False
 
 
+    #Vista en consola o sacar también a hoja de cálculo.
+
+    operador_hoja_de_calculo3=0
+    sacar_a_hoja_de_calculo3=False
+
+    while (operador_hoja_de_calculo3!=1 and operador_hoja_de_calculo3!=2):
+      try:
+        operador_hoja_de_calculo3=int(input("\n1.-Copiar el resultado en un archivo de hoja de cálculo?\n2.-No, ver únicamente en consola.\n"))
+      except ValueError:
+        pass
+
+    if (operador_hoja_de_calculo3==1):
+        sacar_a_hoja_de_calculo3=True
+
+
+    #Consulta
 
     #Ya tenemos el código del medidor en medidor3 y la lista de fechas del periodo en lista_fechas3, ahora accedemos a los datos y los imprimimos en pantalla.
     #Para ello utilizamos la función extrae líneas y la función genera_ruta
@@ -175,9 +207,16 @@ while(seguimos):
     """
     # def genera_ruta_archivo(anio, mes, dia, ruta_main): -> "Directorio del main"\\Datos Trafico Madrid\\Febrero 2018\\2018-02-03
 
+    #También vamos a inicializar un contadorResultados3 a cero para ir contando los registros que devuelve la búsqueda
+    #Este contador lo compararemos luego con el número de mediciones que deberíamos tener en teoría
+
+    contadorResultados3=0
+
     for i in lista_fechas3:
       rutai=genera_ruta_archivo(i[0], i[1], i[2], ruta_main) #genera_ruta_archivo(año, mes, dia, ruta_main)
       listai=extrae_lineas(medidor3, rutai, i[3], i[4])
+
+      contadorResultados3+=len(listai)
 
       if(minutos3):
         for j in listai:
@@ -188,30 +227,21 @@ while(seguimos):
         for j in lista_horariai:
           print(f"El medidor {medidor3} el día {j[3]} del mes {j[2]} del año {j[1]} a las {j[4]} horas tuvo unas mediciones de {j[7]} intensidad, {j[8]} ocupación, {j[9]} carga y {j[10]} velocidad media con {j[13]} mediciones en esa hora.")
 
+      
+      #Ahora, si el usuario eligió pasar a hoja de cálculo metemos el resultado en el archivo correspondiente.
 
-    print("\n\n")
+      if(sacar_a_hoja_de_calculo3):
+        if(minutos3):
+          #print("Generando archivo de mediciones.")
+          Lista_minutos_a_hoja_de_calculo(medidor3, fechas3, listai, ruta_main)
+        else:
+          #print("Generando archivo de mediciones horarias.")
+          Lista_horaria_a_hoja_de_calculo(medidor3, fechas3, lista_horariai, ruta_main)
 
-
-    operador_hoja_de_calculo3=0
-    sacar_a_hoja_de_calculo3=False
-
-    while (operador_hoja_de_calculo3!=1 and operador_hoja_de_calculo3!=2):
-      try:
-        operador_hoja_de_calculo3=int(input("\n1.-Copiar el resultado en un archivo de hoja de cálculo?\n2.-No, con esto me vale.\n"))
-      except ValueError:
-        pass
-
-    if (operador_hoja_de_calculo3==1):
-      sacar_a_hoja_de_calculo3=True
-
-    if(sacar_a_hoja_de_calculo3):
-      if(minutos3):
-        print("Generando archivo de mediciones.")
-        Lista_minutos_a_hoja_de_calculo(medidor3, fechas3, listai, ruta_main)
-      else:
-        print("Generando archivo de mediciones horarias.")
-        Lista_horaria_a_hoja_de_calculo(medidor3, fechas3, lista_horariai, ruta_main)
-
+    print("")
+    print("El número de mediciones teóricas es: " medicionesTeoricas3)
+    print("El número de mediciones obtenidas ha sido: ", contadorResultados3)
+    
     print("\n\n")
 
 
