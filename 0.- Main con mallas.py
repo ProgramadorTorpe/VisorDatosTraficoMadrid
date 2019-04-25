@@ -239,7 +239,7 @@ while(seguimos):
           Lista_horaria_a_hoja_de_calculo(medidor3, fechas3, lista_horariai, ruta_main)
 
     print("")
-    print("El número de mediciones teóricas es: " medicionesTeoricas3)
+    print("El número de mediciones teóricas es: ", medicionesTeoricas3)
     print("El número de mediciones obtenidas ha sido: ", contadorResultados3)
     
     print("\n\n")
